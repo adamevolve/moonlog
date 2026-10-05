@@ -1,0 +1,19 @@
+{
+  "name": "Moonlog",
+  "short_name": "Moonlog",
+  "description": "Android-first sleep journal and phone-only sleep estimator.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121827",
+  "theme_color": "#121827",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
