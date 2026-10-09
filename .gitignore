@@ -1,0 +1,6 @@
+.DS_Store
+# private personal data - never commit
+data/
+backup*.json
+export*.json
+*.csv
