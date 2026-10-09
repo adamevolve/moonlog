@@ -187,11 +187,11 @@ function render() {
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">${icons.moon}</div>
           <div>
-            <h1>Moonlog</h1>
-            <p>Phone-only sleep journal</p>
+            <h1 data-ue="title">Moonlog</h1>
+            <p data-ue="tagline">Phone-only sleep journal</p>
           </div>
         </div>
-        <span class="pill">${confidence()}% estimate confidence</span>
+        <div style="display:flex;align-items:center;gap:6px"><span class="pill" data-ue="conf_pill">${confidence()}% estimate confidence</span><span id="gearSpot"></span></div>
       </header>
       <nav class="tabs" aria-label="Main navigation">
         ${tab("dashboard", icons.dashboard, "Today")}
@@ -211,10 +211,12 @@ function render() {
   renderSetup();
   renderInsights();
   bindEvents();
+  UIEdit.scan();
+  UIEdit.gear(document.getElementById("gearSpot"));
 }
 
 function tab(id, icon, label) {
-  return `<button class="tab ${view === id ? "active" : ""}" data-view="${id}" type="button">${icon}<span>${label}</span></button>`;
+  return `<button class="tab ${view === id ? "active" : ""}" data-view="${id}" data-ue="t_${id}" type="button">${icon}<span data-ue-text>${label}</span></button>`;
 }
 
 function renderDashboard() {
@@ -226,51 +228,51 @@ function renderDashboard() {
   root.innerHTML = `
     <div class="grid desktop-grid">
       <div class="grid">
-        <section class="panel hero">
+        <section class="panel hero" data-ue="hero">
           <p class="label">${last?.source === "confirmed" ? "Last confirmed sleep" : "Last estimated sleep"}</p>
           <div class="hero-main">
             <div>
               <p class="big-number">${last ? fmtDuration(duration(last)) : "0h 00m"}</p>
               <p class="tiny">${last ? `${fmtClock(last.bedtime)} to ${fmtClock(last.wake)} · ${last.quality}/5 quality` : "No sleep logged yet"}</p>
             </div>
-            <button class="btn secondary" data-edit="${last?.id || ""}" ${last ? "" : "disabled"}>${icons.edit}<span>Edit</span></button>
+            <button class="btn secondary" data-edit="${last?.id || ""}" data-ue="b_edit" ${last ? "" : "disabled"}>${icons.edit}<span data-ue-text>Edit</span></button>
           </div>
           <div class="metric-row">
-            <div class="metric"><strong>${last ? (duration(last) >= state.settings.target * 60 ? "Met" : "Short") : "-"}</strong><span>Goal</span></div>
-            <div class="metric"><strong>${fmtDuration(debt)}</strong><span>Week debt</span></div>
-            <div class="metric"><strong>${confidence()}%</strong><span>Confidence</span></div>
+            <div class="metric" data-ue="m_goal"><strong>${last ? (duration(last) >= state.settings.target * 60 ? "Met" : "Short") : "-"}</strong><span data-ue-text>Goal</span></div>
+            <div class="metric" data-ue="m_debt"><strong>${fmtDuration(debt)}</strong><span data-ue-text>Week debt</span></div>
+            <div class="metric" data-ue="m_conf"><strong>${confidence()}%</strong><span data-ue-text>Confidence</span></div>
           </div>
         </section>
-        <section class="panel card confirm-card">
+        <section class="panel card confirm-card" data-ue="confirm">
           <div class="section-title">
             <div>
-              <h2>Morning confirmation</h2>
+              <h2 data-ue="h_confirm">Morning confirmation</h2>
               <p>Phone-only estimate. Adjust it if needed.</p>
             </div>
           </div>
           <div class="estimate-band">
-            <div><span class="tiny">Asleep</span><strong>${fmtClock(proposal.bedtime)}</strong></div>
-            <div><span class="tiny">Wake</span><strong>${fmtClock(proposal.wake)}</strong></div>
-            <div><span class="tiny">Duration</span><strong>${fmtDuration(duration(proposal))}</strong></div>
+            <div data-ue="e_asleep"><span class="tiny" data-ue-text>Asleep</span><strong>${fmtClock(proposal.bedtime)}</strong></div>
+            <div data-ue="e_wake"><span class="tiny" data-ue-text>Wake</span><strong>${fmtClock(proposal.wake)}</strong></div>
+            <div data-ue="e_dur"><span class="tiny" data-ue-text>Duration</span><strong>${fmtDuration(duration(proposal))}</strong></div>
           </div>
           <div class="btn-row">
-            <button class="btn" data-confirm-proposal>${icons.check}<span>Confirm</span></button>
-            <button class="btn secondary" data-edit-proposal>${icons.edit}<span>Adjust</span></button>
+            <button class="btn" data-confirm-proposal data-ue="b_confirm">${icons.check}<span data-ue-text>Confirm</span></button>
+            <button class="btn secondary" data-edit-proposal data-ue="b_adjust">${icons.edit}<span data-ue-text>Adjust</span></button>
           </div>
         </section>
       </div>
       <div class="grid">
-        <section class="panel card">
+        <section class="panel card" data-ue="trend">
           <div class="section-title">
             <div>
-              <h2>7-night trend</h2>
+              <h2 data-ue="h_trend">7-night trend</h2>
               <p>Goal line is ${state.settings.target}h.</p>
             </div>
           </div>
           <div class="chart">${weekly().map(chartBar).join("")}</div>
         </section>
-        <section class="panel card">
-          <div class="section-title"><h2>Phone signals</h2></div>
+        <section class="panel card" data-ue="signals">
+          <div class="section-title"><h2 data-ue="h_signals">Phone signals</h2></div>
           ${signalList()}
         </section>
       </div>
@@ -287,12 +289,12 @@ function chartBar(item) {
 
 function signalList() {
   const sig = [
-    ["First unlock", state.settings.useFirstUnlock],
-    ["Phone charging", state.settings.useCharging],
-    ["Screen inactivity", state.settings.useScreenIdle],
-    ["Bedside motion", state.settings.useMotion]
+    ["g_unlock", "First unlock", state.settings.useFirstUnlock],
+    ["g_charge", "Phone charging", state.settings.useCharging],
+    ["g_idle", "Screen inactivity", state.settings.useScreenIdle],
+    ["g_motion", "Bedside motion", state.settings.useMotion]
   ];
-  return sig.map(([name, on]) => `<div class="switch"><label>${name}</label><span class="pill">${on ? "Used" : "Off"}</span></div>`).join("");
+  return sig.map(([id, name, on]) => `<div class="switch" data-ue="${id}"><label data-ue-text>${name}</label><span class="pill">${on ? "Used" : "Off"}</span></div>`).join("");
 }
 
 function renderLog() {
@@ -301,8 +303,8 @@ function renderLog() {
   root.innerHTML = `
     <section class="panel card">
       <div class="section-title">
-        <div><h2>Sleep log</h2><p>Manual entries and phone estimates live together.</p></div>
-        <button class="btn secondary" data-new-entry>${icons.plus}<span>Add</span></button>
+        <div><h2 data-ue="h_log">Sleep log</h2><p>Manual entries and phone estimates live together.</p></div>
+        <button class="btn secondary" data-new-entry data-ue="b_add">${icons.plus}<span data-ue-text>Add</span></button>
       </div>
       <div class="log-list">
         ${entries.map(logItem).join("") || `<div class="notice">No nights logged yet. Add one or confirm the morning estimate.</div>`}
@@ -333,38 +335,38 @@ function logItem(e) {
 function renderSetup() {
   const root = document.getElementById("setup");
   root.innerHTML = `
-    <section class="panel card">
+    <section class="panel card" data-ue="s_night">
       <div class="section-title">
-        <div><h2>Night setup</h2><p>Optional. It helps the estimate tomorrow.</p></div>
+        <div><h2 data-ue="h_night">Night setup</h2><p>Optional. It helps the estimate tomorrow.</p></div>
       </div>
       <form class="form" data-setup-form>
         <div class="two">
-          <div class="field"><label for="intended-bed">Intended bedtime</label><input id="intended-bed" name="intendedBed" type="time" value="${state.night.intendedBed || state.settings.intendedBed}"></div>
-          <div class="field"><label for="intended-wake">Intended wake</label><input id="intended-wake" name="intendedWake" type="time" value="${state.night.intendedWake || state.settings.intendedWake}"></div>
+          <div class="field" data-ue="f_bed"><label for="intended-bed" data-ue-text>Intended bedtime</label><input id="intended-bed" name="intendedBed" type="time" value="${state.night.intendedBed || state.settings.intendedBed}"></div>
+          <div class="field" data-ue="f_wake"><label for="intended-wake" data-ue-text>Intended wake</label><input id="intended-wake" name="intendedWake" type="time" value="${state.night.intendedWake || state.settings.intendedWake}"></div>
         </div>
-        ${check("alarmSet", "Alarm is set", state.night.alarmSet)}
-        ${check("chargingReminder", "Put phone on charge", state.night.chargingReminder)}
-        ${check("dndReminder", "Turn on Do Not Disturb", state.night.dndReminder)}
+        ${check("alarmSet", "Alarm is set", state.night.alarmSet, "c_alarm")}
+        ${check("chargingReminder", "Put phone on charge", state.night.chargingReminder, "c_charge")}
+        ${check("dndReminder", "Turn on Do Not Disturb", state.night.dndReminder, "c_dnd")}
         <button class="btn" type="submit">${state.night.active ? "Update night" : "Start night"}</button>
         ${state.night.active ? `<button class="btn secondary" type="button" data-end-night>End night</button>` : ""}
       </form>
     </section>
-    <section class="panel card" style="margin-top:12px">
-      <div class="section-title"><div><h2>Estimate inputs</h2><p>These are phone-only clues, not wearable data.</p></div></div>
-      ${settingSwitch("useFirstUnlock", "First unlock time")}
-      ${settingSwitch("useCharging", "Charging overnight")}
-      ${settingSwitch("useScreenIdle", "Screen inactivity")}
-      ${settingSwitch("useMotion", "Optional mattress-side motion")}
+    <section class="panel card" style="margin-top:12px" data-ue="s_inputs">
+      <div class="section-title"><div><h2 data-ue="h_inputs">Estimate inputs</h2><p>These are phone-only clues, not wearable data.</p></div></div>
+      ${settingSwitch("useFirstUnlock", "First unlock time", "w_unlock")}
+      ${settingSwitch("useCharging", "Charging overnight", "w_charge")}
+      ${settingSwitch("useScreenIdle", "Screen inactivity", "w_idle")}
+      ${settingSwitch("useMotion", "Optional mattress-side motion", "w_motion")}
     </section>
   `;
 }
 
-function check(name, label, checked) {
-  return `<div class="switch"><label for="${name}">${label}</label><input id="${name}" name="${name}" type="checkbox" ${checked ? "checked" : ""}></div>`;
+function check(name, label, checked, ue) {
+  return `<div class="switch" data-ue="${ue}"><label for="${name}" data-ue-text>${label}</label><input id="${name}" name="${name}" type="checkbox" ${checked ? "checked" : ""}></div>`;
 }
 
-function settingSwitch(name, label) {
-  return `<div class="switch"><label for="${name}">${label}</label><input id="${name}" data-setting="${name}" type="checkbox" ${state.settings[name] ? "checked" : ""}></div>`;
+function settingSwitch(name, label, ue) {
+  return `<div class="switch" data-ue="${ue}"><label for="${name}" data-ue-text>${label}</label><input id="${name}" data-setting="${name}" type="checkbox" ${state.settings[name] ? "checked" : ""}></div>`;
 }
 
 function renderInsights() {
@@ -378,25 +380,25 @@ function renderInsights() {
   root.innerHTML = `
     <div class="grid">
       <section class="panel card">
-        <div class="section-title"><div><h2>Insights</h2><p>Built from your phone-only log.</p></div></div>
+        <div class="section-title"><div><h2 data-ue="h_insights">Insights</h2><p>Built from your phone-only log.</p></div></div>
         <div class="metric-row">
-          <div class="metric"><strong>${fmtDuration(avgDur || 0)}</strong><span>Average</span></div>
-          <div class="metric"><strong>${confirmed}/${entries.length}</strong><span>Confirmed</span></div>
-          <div class="metric"><strong>${fmtDuration(sleepDebt())}</strong><span>Week debt</span></div>
+          <div class="metric" data-ue="i_avg"><strong>${fmtDuration(avgDur || 0)}</strong><span data-ue-text>Average</span></div>
+          <div class="metric" data-ue="i_conf"><strong>${confirmed}/${entries.length}</strong><span data-ue-text>Confirmed</span></div>
+          <div class="metric" data-ue="i_debt"><strong>${fmtDuration(sleepDebt())}</strong><span data-ue-text>Week debt</span></div>
         </div>
       </section>
       <section class="panel card">
-        ${insight("Best habit", lateScreens > entries.length / 2 ? "Screens are showing up on many nights. A no-screen wind-down is the cleanest experiment." : "Screen use is not dominating your log. Keep the bedtime rhythm steady.")}
-        ${insight("Caffeine check", caffeine ? `${caffeine} recent nights include caffeine after 2pm. Compare those against confirmed quality.` : "No late caffeine logged recently. Nice clean baseline.")}
-        ${insight("Confidence", `Your current estimate confidence is ${confidence()}%. Morning confirmation is the biggest accuracy boost.`)}
-        ${insight("No wearable needed", "Moonlog treats the phone as a rough estimator and you as the final source of truth.")}
+        ${insight("n_habit", "Best habit", lateScreens > entries.length / 2 ? "Screens are showing up on many nights. A no-screen wind-down is the cleanest experiment." : "Screen use is not dominating your log. Keep the bedtime rhythm steady.")}
+        ${insight("n_caff", "Caffeine check", caffeine ? `${caffeine} recent nights include caffeine after 2pm. Compare those against confirmed quality.` : "No late caffeine logged recently. Nice clean baseline.")}
+        ${insight("n_conf", "Confidence", `Your current estimate confidence is ${confidence()}%. Morning confirmation is the biggest accuracy boost.`)}
+        ${insight("n_wear", "No wearable needed", "Moonlog treats the phone as a rough estimator and you as the final source of truth.")}
       </section>
     </div>
   `;
 }
 
-function insight(title, body) {
-  return `<div class="insight"><strong>${title}</strong><p>${body}</p></div>`;
+function insight(ue, title, body) {
+  return `<div class="insight" data-ue="${ue}"><strong data-ue-text>${title}</strong><p>${body}</p></div>`;
 }
 
 function entryDialog() {
@@ -546,5 +548,27 @@ function escapeHtml(text) {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
+
+// ---------- Edit layout: what you can reword, hide or drag into order (kept with your log on this phone) ----------
+const LAYOUT = {
+  title: {label: "Moonlog", color: "#f2f6ff", locked: true}, tagline: {label: "Phone-only sleep journal"}, conf_pill: {fixedLabel: true},
+  t_dashboard: {label: "Today", group: "tabs"}, t_log: {label: "Log", group: "tabs"}, t_setup: {label: "Night", group: "tabs"}, t_insights: {label: "Insights", group: "tabs"},
+  hero: {group: "dashL"}, confirm: {group: "dashL"}, trend: {group: "dashR"}, signals: {group: "dashR"},
+  b_edit: {label: "Edit"},
+  m_goal: {label: "Goal", group: "heroMetrics"}, m_debt: {label: "Week debt", group: "heroMetrics"}, m_conf: {label: "Confidence", group: "heroMetrics"},
+  h_confirm: {label: "Morning confirmation"}, h_trend: {label: "7-night trend"}, h_signals: {label: "Phone signals"},
+  e_asleep: {label: "Asleep", group: "band"}, e_wake: {label: "Wake", group: "band"}, e_dur: {label: "Duration", group: "band"},
+  b_confirm: {label: "Confirm", group: "confirmBtns"}, b_adjust: {label: "Adjust", group: "confirmBtns"},
+  g_unlock: {label: "First unlock", group: "signals"}, g_charge: {label: "Phone charging", group: "signals"}, g_idle: {label: "Screen inactivity", group: "signals"}, g_motion: {label: "Bedside motion", group: "signals"},
+  h_log: {label: "Sleep log"}, b_add: {label: "Add", locked: true},
+  s_night: {group: "setup"}, s_inputs: {group: "setup"}, h_night: {label: "Night setup"}, h_inputs: {label: "Estimate inputs"},
+  f_bed: {label: "Intended bedtime", group: "times"}, f_wake: {label: "Intended wake", group: "times"},
+  c_alarm: {label: "Alarm is set", group: "checks"}, c_charge: {label: "Put phone on charge", group: "checks"}, c_dnd: {label: "Turn on Do Not Disturb", group: "checks"},
+  w_unlock: {label: "First unlock time", group: "inputs"}, w_charge: {label: "Charging overnight", group: "inputs"}, w_idle: {label: "Screen inactivity", group: "inputs"}, w_motion: {label: "Optional mattress-side motion", group: "inputs"},
+  h_insights: {label: "Insights"},
+  i_avg: {label: "Average", group: "insMetrics"}, i_conf: {label: "Confirmed", group: "insMetrics"}, i_debt: {label: "Week debt", group: "insMetrics"},
+  n_habit: {label: "Best habit", group: "notes"}, n_caff: {label: "Caffeine check", group: "notes"}, n_conf: {label: "Confidence", group: "notes"}, n_wear: {label: "No wearable needed", group: "notes"}
+};
+UIEdit.init({elements: LAYOUT, load: () => state.layout, save: (l) => { state.layout = l; localStorage.setItem(KEY, JSON.stringify(state)); }, redraw: render});
 
 render();

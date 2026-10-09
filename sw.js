@@ -1,5 +1,5 @@
-const CACHE = "moonlog-phone-v1";
-const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "moonlog-phone-v2";
+const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./ui_edit.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));

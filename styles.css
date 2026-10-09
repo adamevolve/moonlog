@@ -485,3 +485,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
     padding: 18px;
   }
 }
+
+/* Edit layout */
+.ue-on button.ue-h { padding: 0 5px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 6px; }
+.ue-menu input[type=checkbox] { width: auto; height: auto; }
+.ue-gear { color: var(--muted); }
