@@ -19,14 +19,14 @@ holds its wording (e.g. a <summary> inside <details>), mark that part with data-
   const S = {elements: {}, user: {}, on: false, load: () => ({}), save: () => {}, redraw: () => {}};
   const css = document.createElement("style");
   css.textContent = `
-.ue-on [data-ue]{position:relative;outline:1px dashed rgba(148,163,184,.35);outline-offset:3px;border-radius:6px}
+.ue-on [data-ue]{position:relative;outline:1px dashed rgba(127,127,127,.55);outline-offset:3px;border-radius:6px}  /* mid grey: shows on light and dark pages */
 .ue-on [data-ue][draggable=true]{cursor:grab}
 .ue-on [data-ue].ue-lift{opacity:.4}
 .ue-off [data-ue].ue-hidden{display:none!important}
 .ue-on [data-ue].ue-hidden{opacity:.35}
 button.ue-h{all:unset;box-sizing:border-box;position:absolute;top:-10px;right:-8px;z-index:20;padding:0 5px;border-radius:6px;
-  border:1px solid rgba(148,163,184,.4);background:transparent;color:inherit;font:12px/1.3 -apple-system,sans-serif;letter-spacing:-1px;
-  opacity:.45;cursor:pointer;display:none;width:auto;height:auto;min-width:0;min-height:0;box-shadow:none}
+  border:1px solid rgba(127,127,127,.6);background:rgba(127,127,127,.18);color:inherit;font:12px/1.3 -apple-system,sans-serif;letter-spacing:-1px;
+  opacity:.75;cursor:pointer;display:none;width:auto;height:auto;min-width:0;min-height:0;box-shadow:none}
 button.ue-h:hover{opacity:1}.ue-on button.ue-h{display:block}
 .ue-menu{position:fixed;z-index:1000;min-width:220px;background:#151D2E;color:#EAF0FA;border:1px solid #29344D;border-radius:10px;
   padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.4);font:14px/1.4 -apple-system,sans-serif;display:flex;flex-direction:column;gap:8px}
