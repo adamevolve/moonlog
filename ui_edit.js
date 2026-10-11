@@ -8,6 +8,7 @@ colour, shown, order) wherever it keeps its own data. Defaults never overwrite t
   UIEdit.mark(el, "title")          // an element on the page: in Edit layout it gets a faint outline and a small ⋮⋮
   UIEdit.label(id), UIEdit.color(id), UIEdit.shown(id), UIEdit.order("filters")   // read the user's version
   UIEdit.gear(parent)               // a small ⚙ with the Edit layout switch and "Reset layout"
+  UIEdit.edit(on)                   // or: the page's own Edit layout switch turns it on and off
 
 Element fields: label, color, group (elements in one group can be dragged into order), paint ("text" or "fill":
 what the colour changes), locked (can't be hidden), fixedLabel (no wording to change).
@@ -52,6 +53,8 @@ button.ue-h:hover{opacity:1}.ue-on button.ue-h{display:block}
     color: id => cfg(id).color,
     shown: id => cfg(id).shown !== false,
     get editing() { return S.on; },
+    // For a page with its own Edit layout switch (e.g. the ledger's Settings): turn this on or off with it
+    edit(on) { on = !!on; if (on === S.on) return; S.on = on; apply(); },
     order(group) {
       const ids = Object.keys(S.elements).filter(id => S.elements[id].group === group);
       const at = id => (S.user[id] && S.user[id].order != null) ? S.user[id].order : ids.indexOf(id) * 10;
