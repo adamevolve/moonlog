@@ -8,6 +8,7 @@ colour, shown, order) wherever it keeps its own data. Defaults never overwrite t
   UIEdit.mark(el, "title")          // an element on the page: in Edit layout it gets a faint outline and a small ⋮⋮
   UIEdit.label(id), UIEdit.color(id), UIEdit.shown(id), UIEdit.order("filters")   // read the user's version
   UIEdit.gear(parent)               // a small ⚙ with the Edit layout switch and "Reset layout"
+  (init option info: () => "text" adds a line of plain text to that menu, e.g. which file the page saves to)
   UIEdit.edit(on)                   // or: the page's own Edit layout switch turns it on and off
 
 Element fields: label, color, group (elements in one group can be dragged into order), paint ("text" or "fill":
@@ -153,6 +154,8 @@ button.ue-h:hover{opacity:1}.ue-on button.ue-h{display:block}
   function gearMenu(anchor) {
     close();
     const m = document.createElement("div"); m.className = "ue-menu"; m.onclick = ev => ev.stopPropagation();
+    const note = S.info && S.info();
+    if (note) { const n = document.createElement("div"); n.className = "row"; n.style.opacity = ".7"; n.textContent = note; m.appendChild(n); }
     const l = document.createElement("label"); l.className = "row";
     const i = document.createElement("input"); i.type = "checkbox"; i.checked = S.on;
     i.onchange = () => { S.on = i.checked; apply(); S.redraw(); r.hidden = !S.on; };
